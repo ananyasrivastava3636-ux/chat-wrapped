@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<!--
+  =============================================================================
+  index.html — the STRUCTURE of Chat Wrapped
+  -----------------------------------------------------------------------------
+  What this file is responsible for:
+    The skeleton of the page: headings, buttons, boxes. It doesn't decide how
+    things look (that's style.css) or what happens on click (that's script.js).
+
+  How it connects to the other files:
+    • style.css   → makes everything pretty           (linked in the <head>)
+    • script.js   → buttons, reading the file, the story slides
+    • analysis.py → Python that reads the chat and calculates the stats (run by PyScript)
+  =============================================================================
+-->
+<html lang="en">
+<head>
+  <!-- Settings for the page. "UTF-8" lets emojis show properly 💖 -->
+  <meta charset="UTF-8">
+
+  <!-- Makes the page fit phone screens instead of looking zoomed out -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Chat Wrapped</title>
+
+  <!-- Load PyScript, the tool that runs Python inside the browser -->
+  <link rel="stylesheet" href="https://pyscript.net/releases/2026.7.3/core.css">
+  <script type="module" src="https://pyscript.net/releases/2026.7.3/core.js"></script>
+
+  <!-- Our own look -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <!-- ===== SCREEN 1: the upload screen ===== -->
+  <main id="upload-screen" class="card">
+
+    <!-- Title + tagline -->
+    <h1>Chat Wrapped</h1>
+    <p class="tagline">Your WhatsApp group chat, wrapped up with a bow 🎀</p>
+
+    <!-- Status line: script.js changes this text once Python is ready -->
+    <p id="status" class="status">⏳ Waking up Python… (first time takes ~15 seconds)</p>
+
+    <!--
+      The upload button.
+      The real <input type="file"> is ugly and hard to style, so we hide it and
+      use a <label> as the pretty button. Clicking a label clicks its input.
+      Both start "disabled" until Python is ready.
+    -->
+    <input id="file-input" type="file" accept=".txt,text/plain" disabled hidden>
+    <label id="upload-label" for="file-input" class="btn btn-disabled">📂 Upload your chat (.txt)</label>
+
+    <!-- The demo button that loads our fake chat -->
+    <button id="sample-btn" class="btn btn-soft" disabled>🎭 Try with sample chat</button>
+
+    <!-- Our privacy promise -->
+    <p class="privacy">Your chat never leaves your device 🔒</p>
+
+    <!-- Friendly error messages appear here (hidden until needed) -->
+    <p id="error-box" class="error-box" hidden></p>
+
+    <!-- A little help section that opens when tapped -->
+    <details class="help">
+      <summary>How do I export a WhatsApp chat?</summary>
+      <p><b>Android:</b> open the group → ⋮ menu → More → Export chat → Without media.</p>
+      <p><b>iPhone:</b> open the group → tap the group name → Export Chat → Without Media.</p>
+      <p>Save the .txt file (unzip it first if it arrives as a .zip), then upload it here.</p>
+    </details>
+  </main>
+
+  <!--
+    ===== SCREEN 2: the story slides =====
+    Hidden until a chat has been analysed. script.js fills it in:
+      • #progress-bars → one little bar per slide (like Instagram stories)
+      • #slide-area    → the current slide's card
+    Tapping anywhere on this screen moves to the next/previous slide.
+  -->
+  <section id="story-screen" class="story-screen" hidden>
+    <div id="progress-bars" class="progress-bars"></div>
+    <button id="close-btn" class="close-btn" aria-label="Close the story">✕</button>
+    <div id="slide-area" class="slide-area"></div>
+  </section>
+
+  <!--
+    Load script.js FIRST so that window.onPythonReady exists by the time
+    Python finishes loading and calls it.
+  -->
+  <script src="script.js"></script>
+
+  <!--
+    Run analysis.py with PyScript. type="py" = full Python (Pyodide).
+    config tells PyScript to download the pandas library before running it.
+  -->
+  <script type="py" src="analysis.py" config='{"packages": ["pandas"]}'></script>
+</body>
+</html>

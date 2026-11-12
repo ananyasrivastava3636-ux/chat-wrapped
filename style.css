@@ -1,0 +1,315 @@
+/* =============================================================================
+   style.css — how Chat Wrapped LOOKS
+   -----------------------------------------------------------------------------
+   What this file is responsible for:
+     Colours, fonts, spacing, rounded corners. index.html links to it in <head>.
+     Stage 1 keeps things simple; Stage 4 adds the watercolour background,
+     handwritten fonts, stickers and animations.
+   ============================================================================= */
+
+
+/* --- The colour palette ---------------------------------------------------------
+   NEW CONCEPT — CSS variable:
+   A CSS variable is a nickname for a value. We name each colour once here and
+   use var(--amaranth) everywhere else. Change it here → it changes everywhere.
+   Like saving "Mom" in your contacts instead of typing her number every time.
+   ---------------------------------------------------------------------------- */
+:root {
+  --amaranth: #933B5B;       /* headings, big numbers, main buttons */
+  --thulian-pink: #B5728A;   /* accents, highlights, hover */
+  --brook-green: #AABAAE;    /* soft sections, borders, charts */
+  --chalk: #E3D6BF;          /* cards that text sits on */
+  --pomelo-olive: #9F9679;   /* small labels, secondary text */
+
+  /* A darker Amaranth for body text, so long text is easy to read on Chalk */
+  --amaranth-deep: #5E2339;
+}
+
+
+/* Makes width/height include padding, which makes layouts far less confusing */
+* { box-sizing: border-box; }
+
+/* Anything with the "hidden" attribute must stay hidden, even if another rule
+   below gives it display: flex. Without this, the story screen would never hide. */
+[hidden] { display: none !important; }
+
+
+/* --- The whole page -------------------------------------------------------------
+   Phone-first: everything is centred and narrow by default.
+   Brook Green shows only for a split second while the background image loads.
+   ---------------------------------------------------------------------------- */
+body {
+  margin: 0;
+  min-height: 100vh;
+  padding: 20px 14px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background: var(--brook-green);
+  color: var(--amaranth-deep);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.5;
+}
+
+/* --- The watercolour background -----------------------------------------------
+   WHAT: puts assets/background.jpg behind everything, filling the whole screen.
+   WHY a separate ::before layer instead of "background-attachment: fixed"?
+   iPhones ignore "fixed" backgrounds, so we make an invisible layer that is
+   pinned to the screen (position: fixed) and paint the image on that instead.
+   ::before = an extra "ghost" element CSS creates at the start of the body.
+     • inset: 0          → stretch the layer to all four edges of the screen
+     • cover             → fill the screen without squashing the image
+     • center            → keep the middle of the painting in view
+     • z-index: -1       → sit BEHIND the card, never on top of the text
+   To change the background later: upload a new image as assets/background.jpg
+   (same name), or change the file name in url(...) below.
+   ---------------------------------------------------------------------------- */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image: url("assets/background.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+
+/* --- The main card that all the text sits on --------------------------------------- */
+.card {
+  width: 100%;
+  max-width: 560px;
+  padding: 28px 20px;
+  border-radius: 24px;
+  /* Chalk at 92% strength: the lilies peek through softly, but text stays easy to read.
+     rgba(227, 214, 191, ...) is Chalk #E3D6BF written as red, green, blue + see-through-ness. */
+  background: rgba(227, 214, 191, 0.92);
+  box-shadow: 0 8px 24px rgba(94, 35, 57, 0.15);   /* soft shadow in deep amaranth */
+  text-align: center;
+}
+
+h1 {
+  margin: 0 0 4px;
+  font-size: 2.4rem;
+  color: var(--amaranth);
+}
+
+.tagline { margin: 0 0 18px; }
+
+.status {
+  min-height: 1.5em;
+  font-size: 0.9rem;
+  color: var(--amaranth-deep);
+}
+
+
+/* --- Buttons ------------------------------------------------------------------------ */
+.btn {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+  padding: 14px 18px;
+  border: none;
+  border-radius: 999px;          /* fully rounded "pill" shape */
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  background: var(--amaranth);
+  color: var(--chalk);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+/* Hover = a Thulian Pink glow ring and a tiny grow.
+   (We don't change the background to pink: Chalk text on pink is too hard to read.) */
+.btn:hover { box-shadow: 0 0 0 3px var(--thulian-pink); transform: scale(1.02); }
+
+/* The softer second button */
+.btn-soft { background: var(--brook-green); color: var(--amaranth-deep); }
+
+/* Greyed out while Python is loading */
+.btn:disabled,
+.btn-disabled {
+  opacity: 0.5;
+  cursor: wait;
+  pointer-events: none;           /* the label can't be clicked while disabled */
+}
+
+.privacy { margin-top: 14px; font-weight: 600; }
+
+
+/* --- Friendly error box --------------------------------------------------------------- */
+.error-box {
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--chalk);
+  border: 2px dashed var(--thulian-pink);
+  color: var(--amaranth-deep);
+  font-weight: 600;
+}
+
+
+/* The help section, with a dashed Pomelo Olive line above it.
+   (Pomelo Olive is too pale for small text on Chalk, so we use it for lines.) */
+.help {
+  margin-top: 18px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--pomelo-olive);
+  text-align: left;
+  font-size: 0.9rem;
+}
+.help summary {
+  cursor: pointer;
+  color: var(--amaranth);
+  font-weight: 600;
+}
+
+
+/* =============================================================================
+   STAGE 3: THE STORY SLIDES
+   ============================================================================= */
+
+/* --- The story screen: covers the whole screen --------------------------------------
+   position: fixed + inset: 0 pins it to all four edges of the screen.
+   The lily background still shows behind it (it's transparent). */
+.story-screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14px 14px 24px;
+  cursor: pointer;                 /* shows a hand: "you can tap here" */
+  user-select: none;               /* stops text getting highlighted on fast taps */
+  -webkit-user-select: none;
+}
+
+
+/* --- Progress bars along the top (one per slide) ------------------------------------
+   A row of thin bars, like Instagram stories. Each has a Brook Green track
+   with a Thulian Pink fill inside. */
+.progress-bars {
+  display: flex;
+  gap: 4px;
+  width: 100%;
+  max-width: 480px;
+}
+
+.progress-track {
+  flex: 1;                         /* every bar gets an equal share of the width */
+  height: 5px;
+  border-radius: 999px;
+  background: var(--chalk);
+  overflow: hidden;                /* keeps the fill inside the rounded track */
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;                       /* empty by default (slides still to come) */
+  background: var(--thulian-pink);
+}
+
+.progress-fill.is-done { width: 100%; }   /* slides already seen: full */
+
+/* NEW CONCEPT — CSS animation (@keyframes):
+   @keyframes describes how something changes over time: "start like THIS,
+   end like THAT". The browser fills in every step in between.
+   Like a flipbook where you only draw the first and last page.
+   Here: the current slide's bar fills from 0% to 100% over 0.6 seconds. */
+.progress-fill.is-current { animation: fill-bar 0.6s ease-out forwards; }
+
+@keyframes fill-bar {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
+
+
+/* --- The ✕ close button (top right) ---------------------------------------------- */
+.close-btn {
+  align-self: flex-end;
+  margin: 8px max(0px, calc((100% - 480px) / 2)) 0 0;   /* line up with the bars */
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: var(--chalk);
+  color: var(--amaranth);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+
+/* --- The area that holds the slide card, centred in the remaining space ------------- */
+.slide-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+
+/* --- The slide card ------------------------------------------------------------------- */
+.slide-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 32px 24px;
+  border-radius: 28px;
+  background: rgba(227, 214, 191, 0.94);           /* Chalk, very slightly see-through */
+  box-shadow: 0 10px 30px rgba(94, 35, 57, 0.18);
+  text-align: center;
+  /* Every new slide gently pops in (defined just below) */
+  animation: slide-pop-in 0.45s ease-out;
+}
+
+@keyframes slide-pop-in {
+  from { opacity: 0; transform: translateY(16px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.slide-emoji { font-size: 3rem; line-height: 1; }
+
+.slide-label {
+  margin: 14px 0 4px;
+  font-weight: 600;
+  color: var(--amaranth-deep);
+}
+
+/* The BIG number or name: the star of every slide.
+   clamp(small, preferred, large) = big on laptops, still fits on small phones. */
+.slide-big {
+  margin: 4px 0 10px;
+  font-size: clamp(2.2rem, 11vw, 3.6rem);
+  line-height: 1.1;
+  color: var(--amaranth);
+  overflow-wrap: anywhere;         /* very long names wrap instead of spilling out */
+}
+
+.slide-line { margin: 0 0 12px; font-size: 1.05rem; }
+
+.slide-list {
+  list-style: none;                /* no bullet points */
+  margin: 12px auto 0;
+  padding: 12px 16px;
+  max-width: 300px;
+  border-radius: 16px;
+  background: rgba(170, 186, 174, 0.35);          /* soft Brook Green panel */
+  text-align: left;
+  font-weight: 600;
+}
+
+.slide-list li { margin: 4px 0; }
+
+.slide-hint {
+  margin: 18px 0 0;
+  font-size: 0.85rem;
+  color: var(--amaranth-deep);
+  opacity: 0.75;
+}
+
+/* Respect people who turn off animations in their phone settings */
+@media (prefers-reduced-motion: reduce) {
+  .slide-card, .progress-fill.is-current { animation: none; }
+  .progress-fill.is-current { width: 100%; }
+}
